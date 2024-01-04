@@ -1,4 +1,4 @@
-# Vowel Count
+# 두 수 비교하기
 
 ## 문제 설명
 
@@ -6,7 +6,7 @@
 
 ## 나의 풀이 방법
 
-```cpp
+```python
 a,b=input().split()
 a=int(a)
 b=int(b)

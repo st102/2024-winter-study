@@ -1,4 +1,4 @@
-# Vowel Count
+# 별 찍기 - 3
 
 ## 문제 설명
 
@@ -6,7 +6,7 @@
 
 ## 나의 풀이 방법
 
-```cpp
+```python
 input_number = int(input())
 temp = input_number+1
 
