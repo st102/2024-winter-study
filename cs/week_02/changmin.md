@@ -81,17 +81,152 @@
 ### 1. 다익스트라 알고리즘 (Dijkstra Algorithm)
 특정 한 노드에서 다른 모든 노드의 최단거리를 구하는 알고리즘
 - 특징
+    - 우선순위 큐 사용
     - 음의 간선 존재시 사용 불가
+     - 시간복잡도 : O(ElogV) - V:노드 갯수, E: 엣지 갯수
+
+- 수행 과정
+    1. 출발 노드를 설정한다.
+    2. 최단 거리 테이블을 초기화한다.
+    3. 방문하지 않은 노드 중에서 최단 거리가 가장 짧은 노드를 선택한다.
+    4. 해당 노드를 거쳐 다른 노드로 가능 비용을 계산하여 최단 거리 테이블을 갱신한다. 
+    5. 위 과정에서 3번과 4번을 반복한다. 
+
+```python
+import heapq
+
+INF = int(1e9) #무한을 의미하는 값으로 10억
+ 
+#노드의 개수, 간선의 개수를 입력받기
+n,m = map(int, input().split())
+#시작 노드 번호를 입력받기
+start = int(input())
+#각 노드에 연결되어 있는 노드에 대한 정보를 담는 리스트 만들기
+graph = [[] for i in range(n+1)]
+#최단 거리 테이블을 무한으로 초기화
+distance = [INF]*(n+1)
+ 
+#모든 간선 정보를 입력받기
+for _ in range(m):
+    a,b,c = map(int, input().split())
+    #a번 노드에서 b번 노드로 가는 비용이 c
+    graph[a].append((b,c))
+ 
+def dijkstra(start):
+    q=[]
+    #시작 노드로 가기 위한 최단 경로는 0으로 설정하여 큐에 삽입
+    heapq.heappush(q, (0, start))
+    distance[start]=0
+    #q가 비어있지 않다면
+    while q:
+        #가장 최단 거리인 노드에 대한 정보 꺼내기
+        dist, now = heapq.heappop(q)
+        #현재 노드가 이미 처리됐다면 skip
+        if distance[now] < dist:
+            continue
+        #현재 노드와 연결된 다른 인접한 노드 확인
+        for i in graph[now]:
+            cost = dist + i[1]
+            #현재 노드를 거치면 이동 거리가 더 짧은 경우
+            if cost < distance[i[0]]:
+                distance[i[0]] = cost
+                heapq.heappush(q, (cost, i[0]))
+ 
+```
 
 ### 2. 플로이드 알고리즘 (Floyd Algorithm)
 - 모든 노드 간의 최단거리를 구하는 알고리즘
 - 특징
     - 음의 간선 존재시에도 사용 가능
     - 음의 사이클 존재 여부 판단 불가
+    - 시간복잡도 : O(n^3)
 
+- 수행 과정
+    1. 각 노드 쌍 사이의 거리를 무한으로 설정하고 자기 자신으로 가는 거리는 0으로 초기화한다.
+    2. 입력으로 주어진 간선 정보를 바탕으로 그래프를 갱신한다.
+    3. 각 중간 정점 k에 대하여 시작 정점 i와 끝 정점 j의 가능한 모든 조합을 반복문으로 탐색한다.
+        - (현재 거리 > 중간 정점 k를 거친 거리 ) 이면 그래프를 업데이트한다.
+    4. 그래프의 모든 정점에 대해 2- 3단계를 반복한다.
+최단 경로를 출력한다.
+
+```python
+#플로이드 워셜 알고리즘 소스코드
+INF = int(1e9)
+ 
+#노드의 개수 및 간선의 개수를 입력받기
+n=int(input())
+m = int(input())
+#2차원 리스트를 만들고, 모든 값을 무한으로 초기화
+graph =[[INF]*(n+1) for _ in range(n+1)]
+ 
+#자기 자신 -> 자기 자신 비용은 0으로 초기화
+for a in range(n+1):
+    graph[a][a]=0
+ 
+#각 간선에 대한 정보를 입력 받아 초기화
+for _ in range(m):
+    #a에서 b로 가는 비용은 c
+    a,b,c = map(int, input().split())
+    graph[a][b]=c
+ 
+#점화식에 따라 플로이드 워셜 알고리즘을 수행
+#점화식: D(a->b) = min(D(a->b), D(a->k)+D(k->b))x
+def floyd(graph):
+    for i in range(len(graph)): # 거치는 점!!
+        for j in range(len(graph)): # 시작 점
+            for k in range(len(graph)): # 끝 점
+                graph[j][k] = min(graph[j][k], graph[j][i] + graph[j][k])
+
+```
 
 ### 3. 밸만 포드 알고리즘 (Ballman Ford Alogrithm)
 특정 한 노드에서 다른 노드까지의 최단 거리를 구하는 알고리즘   
 - 특징
     - 음의 간선 존재시에도 사용 가능
     - 음의 사이클 존재 여부 판단 가능
+    - 시간복잡도 : O(VE) - V:노드 갯수, E: 엣지 갯수
+- 수행 과정
+    1. 출발 노드를 설정한다.
+    2. 최단 거리 테이블을 초기화한다.
+    3. 다음의 과정을 노드개수-1번 반복한다.
+        1. 전체 간선 E개를 하나씩 확인한다.
+        2. 각 간선을 거쳐 다른 노드로 가는 비용을 계산하여 최단 거리 테이블을 갱신한다.
+            - 출발 노드가 방문한 적 없는 노드(출발거리 == INF)일 때 값을 업데이트 하지 않는다.
+            - 출발 노드의 거리 리스트값 + 에지 가중치 < 종료 노드의 거리 리스트 값 일 때 종료 노드의 거리 리스트 값을 업데이트 한다.
+    4. 만약 음수 간선 순환이 발생하는지 체크하고 싶다면 3번의 과정을 한 번 더 수행한다.
+        -  이 때 최단 거리 테이블이 갱신된다면 음수 간선 순환이 존재하는 것이다
+```python
+INF = int(1e9) # 무한을 의미하는 값으로 10억을 설정
+
+# 노드의 개수, 간선의 개수를 입력받기
+n, m = map(int, input().split())
+# 모든 간선에 대한 정보를 담는 리스트 만들기
+edges = []
+# 최단 거리 테이블을 모두 무한으로 초기화
+distance = [INF] * (n + 1)
+
+# 모든 간선 정보를 입력받기
+for _ in range(m):
+    a, b, c = map(int, input().split())
+    # a번 노드에서 b번 노드로 가는 비용이 c라는 의미
+    edges.append((a, b, c))
+
+def bf(start):
+    # 시작 노드에 대해서 초기화
+    distance[start] = 0
+    # 전체 n - 1번의 라운드(round)를 반복
+    for i in range(n):
+        # 매 반복마다 "모든 간선"을 확인하며
+        for j in range(m):
+            cur_node = edges[j][0]
+            next_node = edges[j][1]
+            edge_cost = edges[j][2]
+            # 현재 간선을 거쳐서 다른 노드로 이동하는 거리가 더 짧은 경우
+            if distance[cur_node] != INF and distance[next_node] > distance[cur_node] + edge_cost:
+                distance[next_node] = distance[cur_node] + edge_cost
+                # n번째 라운드에서도 값이 갱신된다면 음수 순환이 존재
+                if i == n - 1:
+                    return True
+    return False
+
+```
