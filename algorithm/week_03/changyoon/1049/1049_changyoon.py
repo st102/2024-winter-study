@@ -4,7 +4,7 @@ string = []
 temp = []
 count = 0
 
-for i in range (b):
+for i in range(b):
     string.extend(list(map(int, input().split())))
 
 while True:
